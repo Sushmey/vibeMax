@@ -20,7 +20,7 @@ class SearchRequest(BaseModel):
     query: str
     as_song: bool = False
     energy: Optional[str] = None
-    top_k: int = 10
+    top_k: int = 5
 
 
 class Match(BaseModel):
