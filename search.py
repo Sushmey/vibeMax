@@ -5,6 +5,8 @@ from embedding_client import embed_text
 from groq_client import interpret_vibe_query
 from pinecone_client import fetch_vector, query_vectors
 
+MAX_QUERY_LENGTH = 300
+
 
 def get_vector_for_song(query: str) -> list | None:
     """Resolve a song query to its stored vector, building it (cold start) if missing."""
@@ -17,6 +19,9 @@ def get_vector_for_song(query: str) -> list | None:
 
 
 def search(query: str, as_song: bool = False, top_k: int = 5, energy: str | None = None) -> list:
+    if len(query) > MAX_QUERY_LENGTH:
+        raise ValueError(f"That's a bit long — keep it under {MAX_QUERY_LENGTH} characters.")
+
     if as_song:
         vector = get_vector_for_song(query)
     else:
