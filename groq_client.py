@@ -9,7 +9,7 @@ load_dotenv()
 GROQ_API = os.environ["GROQ_API"]
 
 CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-20b"
 
 SYSTEM_PROMPT = """You are a music vibe analyst. Given metadata and community tags for a song, \
 output a JSON object describing its vibe with exactly these fields:
@@ -19,6 +19,27 @@ output a JSON object describing its vibe with exactly these fields:
 - "era_feel": the decade the song sonically evokes (e.g. "1980s"), which may differ from its actual release year
 - "best_for": a short occasion or setting phrase (e.g. "late-night drive")
 - "description": 1-2 evocative sentences capturing the actual vibe of the song
+
+Respond with only the JSON object, no other text."""
+
+QUERY_SYSTEM_PROMPT = """A user is describing a mood, feeling, or situation to a music search engine. \
+Translate what they said into a search query for that engine.
+
+Default to assuming the best for the user: if they describe something negative (rejection, heartbreak, \
+loss, a bad day), assume they want music that supports them through it, not music that matches the \
+negative feeling. Pick the kind of support that actually fits — empowering and confident for rejection \
+or heartbreak, gentle and soothing for grief or loss, and so on. Only match the negative feeling directly \
+if they explicitly say they want to sit in it, dwell on it, or feel understood in it (e.g. "I want to sit \
+in this feeling," "let me wallow").
+
+Output a JSON object with exactly these fields:
+- "description": 1-2 evocative sentences describing the mood, emotional tone, and atmosphere of music that \
+fits what they're actually looking for. Stay in abstract mood/feeling language — do not presume a genre, \
+instrumentation, or production style (e.g. don't say "beats," "synths," "guitar riffs," "orchestral") \
+unless the user explicitly asked for one. The song this gets matched against could be anything from a pop \
+song to an orchestral film score, so describing a specific sound would wrongly rule out otherwise perfect \
+matches.
+- "energy": one of "low", "medium", "high" if the desired energy is clear from what they said, otherwise null
 
 Respond with only the JSON object, no other text."""
 
@@ -48,6 +69,28 @@ def generate_vibe_schema(track: dict, tags: list) -> dict:
             "temperature": 0.7,
         },
     )
+    response.raise_for_status()
+    content = response.json()["choices"][0]["message"]["content"]
+    return json.loads(content)
+
+
+def interpret_vibe_query(phrase: str) -> dict:
+    """Translate a free-text mood/situation into a search description + inferred energy."""
+    response = requests.post(
+        CHAT_URL,
+        headers={"Authorization": f"Bearer {GROQ_API}"},
+        json={
+            "model": MODEL,
+            "messages": [
+                {"role": "system", "content": QUERY_SYSTEM_PROMPT},
+                {"role": "user", "content": phrase},
+            ],
+            "response_format": {"type": "json_object"},
+            "temperature": 0.7,
+        },
+    )
+    if not response.ok:
+        print("Groq error response:", response.text, flush=True)
     response.raise_for_status()
     content = response.json()["choices"][0]["message"]["content"]
     return json.loads(content)

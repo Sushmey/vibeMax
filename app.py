@@ -17,7 +17,7 @@ if st.button("Search") and query:
     spinner_text = "Building this song's vibe profile..." if as_song else "Searching..."
     with st.spinner(spinner_text):
         try:
-            results = search(query, as_song=as_song, top_k=10, energy=energy_filter)
+            results = search(query, as_song=as_song, top_k=5, energy=energy_filter)
         except Exception as e:
             st.error(f"Something went wrong: {e}")
             results = None

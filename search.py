@@ -2,6 +2,7 @@ import sys
 
 from build import build_song
 from embedding_client import embed_text
+from groq_client import interpret_vibe_query
 from pinecone_client import fetch_vector, query_vectors
 
 
@@ -16,7 +17,15 @@ def get_vector_for_song(query: str) -> list | None:
 
 
 def search(query: str, as_song: bool = False, top_k: int = 5, energy: str | None = None) -> list:
-    vector = get_vector_for_song(query) if as_song else embed_text(query)
+    if as_song:
+        vector = get_vector_for_song(query)
+    else:
+        interpreted = interpret_vibe_query(query)
+        print("interpreted vibe:", interpreted, flush=True)
+        vector = embed_text(interpreted["description"])
+        # if energy is None:
+        #     energy = interpreted.get("energy")
+
     return query_vectors(vector, top_k=top_k, energy=energy)
 
 
