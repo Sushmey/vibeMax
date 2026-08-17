@@ -1,23 +1,17 @@
 import sys
 
+from build import build_song
 from embedding_client import embed_text
 from pinecone_client import fetch_vector, query_vectors
-from seed import seed_song
-from spotify_client import search_track
 
 
 def get_vector_for_song(query: str) -> list | None:
     """Resolve a song query to its stored vector, building it (cold start) if missing."""
-    result = search_track(query)
+    result = build_song(query)
     if result is None:
         return None
 
-    spotify_id = result["id"]
-    existing = fetch_vector(spotify_id)
-    if existing is None:
-        seed_song(query)
-        existing = fetch_vector(spotify_id)
-
+    existing = fetch_vector(result["id"])
     return existing["values"] if existing else None
 
 
