@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vibeMax</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>vibeMax</h1>
+    <p class="tagline">Search music by vibe, not genre.</p>
+
+    <form id="search-form">
+      <div class="mode-toggle">
+        <label><input type="radio" name="mode" value="phrase" checked> Vibe phrase</label>
+        <label><input type="radio" name="mode" value="song"> Song name</label>
+      </div>
+
+      <input type="text" id="query" placeholder="What are you feeling?" required>
+
+      <select id="energy">
+        <option value="">Energy: Any</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+
+      <button type="submit">Search</button>
+    </form>
+
+    <div id="status"></div>
+    <div id="results"></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
