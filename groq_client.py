@@ -100,7 +100,8 @@ def interpret_vibe_query(phrase: str) -> dict | None:
     )
     if not response.ok:
         print("Groq error response:", response.text, flush=True)
-    response.raise_for_status()
+        return None
+
     content = response.json()["choices"][0]["message"]["content"]
 
     try:
