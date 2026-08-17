@@ -5,3 +5,5 @@ sentence-transformers
 torchvision
 tqdm
 streamlit
+fastapi
+uvicorn
