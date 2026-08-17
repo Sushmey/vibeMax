@@ -1,0 +1,6 @@
+requests
+python-dotenv
+langchain-huggingface
+sentence-transformers
+tqdm
+streamlit
