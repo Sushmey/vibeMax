@@ -26,6 +26,8 @@ def search(query: str, as_song: bool = False, top_k: int = 5, energy: str | None
         vector = get_vector_for_song(query)
     else:
         interpreted = interpret_vibe_query(query)
+        if interpreted is None:
+            raise ValueError("Couldn't process that — try rephrasing your prompt.")
         print("interpreted vibe:", interpreted, flush=True)
         vector = embed_text(interpreted["description"])
         # if energy is None:

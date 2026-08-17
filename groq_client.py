@@ -80,8 +80,11 @@ def generate_vibe_schema(track: dict, tags: list) -> dict:
     return json.loads(content)
 
 
-def interpret_vibe_query(phrase: str) -> dict:
-    """Translate a free-text mood/situation into a search description + inferred energy."""
+def interpret_vibe_query(phrase: str) -> dict | None:
+    """Translate a free-text mood/situation into a search description + inferred energy.
+
+    Returns None if Groq's response isn't valid JSON, instead of raising.
+    """
     response = requests.post(
         CHAT_URL,
         headers={"Authorization": f"Bearer {GROQ_API}"},
@@ -99,7 +102,12 @@ def interpret_vibe_query(phrase: str) -> dict:
         print("Groq error response:", response.text, flush=True)
     response.raise_for_status()
     content = response.json()["choices"][0]["message"]["content"]
-    return json.loads(content)
+
+    try:
+        return json.loads(content)
+    except json.JSONDecodeError:
+        print("Groq returned non-JSON content:", content, flush=True)
+        return None
 
 
 if __name__ == "__main__":
