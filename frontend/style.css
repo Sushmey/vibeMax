@@ -44,9 +44,28 @@ button {
 button:hover { background: #4338ca; }
 
 #status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #9a9aa5;
   font-size: 0.9rem;
   min-height: 1.2em;
+}
+
+.spinner {
+  display: none;
+  width: 0.9em;
+  height: 0.9em;
+  border: 2px solid #33333a;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner.active { display: inline-block; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .card {

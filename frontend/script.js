@@ -1,8 +1,44 @@
-const API_BASE = "http://localhost:8000"; // TODO: replace with your deployed Render URL
+const API_BASE = "https://vibemax.onrender.com";
+// const API_BASE = "http://localhost:8000";
+
+const SONG_MESSAGES = [
+  "Waking up the server...",
+  "Resolving the track...",
+  "Reading the room...",
+  "Building this song's vibe profile...",
+  "Almost there...",
+];
+
+const PHRASE_MESSAGES = [
+  "Waking up the server...",
+  "Reading the vibe...",
+  "Searching...",
+  "Almost there...",
+];
 
 const form = document.getElementById("search-form");
 const statusEl = document.getElementById("status");
+const statusTextEl = document.getElementById("status-text");
+const spinnerEl = document.getElementById("spinner");
 const resultsEl = document.getElementById("results");
+
+let messageInterval = null;
+
+function startLoading(messages) {
+  spinnerEl.classList.add("active");
+  let i = 0;
+  statusTextEl.textContent = messages[0];
+  messageInterval = setInterval(() => {
+    i = (i + 1) % messages.length;
+    statusTextEl.textContent = messages[i];
+  }, 2500);
+}
+
+function stopLoading(finalText = "") {
+  clearInterval(messageInterval);
+  spinnerEl.classList.remove("active");
+  statusTextEl.textContent = finalText;
+}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -13,8 +49,8 @@ form.addEventListener("submit", async (e) => {
 
   if (!query) return;
 
-  statusEl.textContent = asSong ? "Building this song's vibe profile..." : "Searching...";
   resultsEl.innerHTML = "";
+  startLoading(asSong ? SONG_MESSAGES : PHRASE_MESSAGES);
 
   try {
     const response = await fetch(`${API_BASE}/search`, {
@@ -26,10 +62,10 @@ form.addEventListener("submit", async (e) => {
     if (!response.ok) throw new Error(`Request failed: ${response.status}`);
 
     const matches = await response.json();
-    statusEl.textContent = "";
+    stopLoading();
     renderResults(matches);
   } catch (err) {
-    statusEl.textContent = `Something went wrong: ${err.message}`;
+    stopLoading(`Something went wrong: ${err.message}`);
   }
 });
 
