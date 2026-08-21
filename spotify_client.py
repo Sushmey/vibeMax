@@ -27,6 +27,8 @@ def _request_with_retry(method: str, url: str, max_retries: int = 3, **kwargs) -
             print(f"Spotify rate limited, waiting {wait}s (attempt {attempt + 1}/{max_retries})...")
             time.sleep(wait)
             continue
+        if not response.ok:
+            print("Spotify error response:", response.text, flush=True)
         response.raise_for_status()
         return response
 
