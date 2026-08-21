@@ -70,9 +70,12 @@ if st.button("Search") and ready:
     elif results:
         for match in results:
             meta = match.get("metadata", {})
-            with st.container(border=True):
-                st.subheader(f"{meta.get('name')} — {meta.get('artist')} ({meta.get('release_year')})")
-                st.caption(f"match score: {match['score']:.2f}")
+            with st.expander(f"🎵 **{meta.get('name')}** — {meta.get('artist')}"):
+                if meta.get("album_art"):
+                    st.image(meta["album_art"], width=150)
+                st.caption(f"{meta.get('release_year')}")
+                vibe_match = max(0, min(100, round(match["score"] * 100)))
+                st.progress(vibe_match / 100, text=f"Vibe match: {vibe_match}%")
                 st.write(meta.get("description"))
                 st.markdown(
                     f"**Mood:** {meta.get('mood')} &nbsp;&nbsp; "
