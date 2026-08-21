@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 import requests
 from dotenv import load_dotenv
@@ -18,7 +19,9 @@ output a JSON object describing its vibe with exactly these fields:
 - "energy": one of "low", "medium", "high"
 - "era_feel": the decade the song sonically evokes (e.g. "1980s"), which may differ from its actual release year
 - "best_for": a short occasion or setting phrase (e.g. "late-night drive")
-- "description": 1-2 evocative sentences capturing the actual vibe of the song
+- "description": 1-2 sentences describing the specific feelings and emotional atmosphere this song \
+evokes in a listener — not the song's sound or production, but how it makes someone feel. Grounded in \
+the facts and tags given.
 
 Respond with only the JSON object, no other text."""
 
@@ -62,22 +65,29 @@ def generate_vibe_schema(track: dict, tags: list) -> dict:
         f"Last.fm tags: {', '.join(tags) if tags else 'none'}"
     )
 
-    response = requests.post(
-        CHAT_URL,
-        headers={"Authorization": f"Bearer {GROQ_API}"},
-        json={
-            "model": MODEL,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": facts},
-            ],
-            "response_format": {"type": "json_object"},
-            "temperature": 0.7,
-        },
-    )
+    for attempt in range(3):
+        response = requests.post(
+            CHAT_URL,
+            headers={"Authorization": f"Bearer {GROQ_API}"},
+            json={
+                "model": MODEL,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": facts},
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.7,
+            },
+        )
+        if response.status_code == 429:
+            print(f"Groq rate limited, waiting 15s (attempt {attempt + 1}/3)...", flush=True)
+            time.sleep(15)
+            continue
+        response.raise_for_status()
+        content = response.json()["choices"][0]["message"]["content"]
+        return json.loads(content)
+
     response.raise_for_status()
-    content = response.json()["choices"][0]["message"]["content"]
-    return json.loads(content)
 
 
 def interpret_vibe_query(phrase: str) -> dict | None:
