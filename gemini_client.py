@@ -8,9 +8,9 @@ load_dotenv()
 
 GEMINI_API = os.environ["GEMINI_API"]
 
-GENERATE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+GENERATE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
 
-CAPTION_PROMPT = """Describe the mood, atmosphere, and feeling of this image in 1-2 sentences. \
+CAPTION_PROMPT = """Describe the mood, atmosphere, and feeling of this image in 1-2 sentences (300 characters max). \
 Focus on the emotional tone and setting — is it cozy, chaotic, romantic, melancholic, energetic? \
 Don't just list objects you see; describe how the scene feels."""
 
